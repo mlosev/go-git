@@ -186,10 +186,8 @@ func TestRemove(t *testing.T) {
 		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
 			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
 				c.CaseName,
-				c.ExpectArgs,
-				c.ExpectErr,
-				gotArgs,
-				gotErr,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
 			)
 		}
 	}
@@ -462,7 +460,7 @@ func TestMerge(t *testing.T) {
 		}
 		gotErr := Merge(c.Branch, c.Msg, c.FastForward)
 		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v",
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
 				c.CaseName,
 				c.ExpectArgs, c.ExpectErr,
 				gotArgs, gotErr,
