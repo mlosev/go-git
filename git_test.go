@@ -552,3 +552,50 @@ func TestRemoteRemove(t *testing.T) {
 		}
 	}
 }
+
+func TestRemoteSetURL(t *testing.T) {
+	cases := []struct {
+		CaseName   string
+		Name       string
+		Location   string
+		ExpectArgs []string
+		ExpectErr  error
+	}{
+		{
+			CaseName:   "No name specified",
+			Name:       "",
+			Location:   "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-git: RemoteSetURL() no name specified"),
+		},
+		{
+			CaseName:   "No location specified",
+			Name:       "remote-name",
+			Location:   "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-git: RemoteSetURL() no location specified"),
+		},
+		{
+			CaseName:   "Remove remote",
+			Name:       "remote-name",
+			Location:   "remote-location",
+			ExpectArgs: []string{"remote", "set-url", "remote-name", "remote-location"},
+			ExpectErr:  nil,
+		},
+	}
+	for _, c := range cases {
+		gotArgs := []string{}
+		execCommand = func(args ...string) runner {
+			gotArgs = args
+			return &mockRunner{}
+		}
+		gotErr := RemoteSetURL(c.Name, c.Location)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
+		}
+	}
+}

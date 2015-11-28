@@ -149,3 +149,13 @@ func RemoteRemove(name string) error {
 	}
 	return execCommand("remote", "rm", name).Run()
 }
+
+func RemoteSetURL(name, location string) error {
+	if name == "" {
+		return errors.New("go-git: RemoteSetURL() no name specified")
+	}
+	if location == "" {
+		return errors.New("go-git: RemoteSetURL() no location specified")
+	}
+	return execCommand("remote", "set-url", name, location).Run()
+}
