@@ -119,7 +119,7 @@ func TestRemove(t *testing.T) {
 			Recursive:  false,
 			Files:      []string{},
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-git: Remove() called without specifing files or recursive"),
+			ExpectErr:  errors.New("go-git: Remove() called without specifying files or recursive"),
 		},
 		{
 			CaseName:   "With files",
@@ -266,7 +266,7 @@ func TestTag(t *testing.T) {
 			Name:       "",
 			Msg:        "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-get: Tag() no tag name specified"),
+			ExpectErr:  errors.New("go-get: Tag() no <tag></tag> name specified"),
 		},
 		{
 			CaseName:   "Create a tag without a message",
