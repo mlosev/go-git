@@ -1,6 +1,7 @@
 package git
 
 import (
+	"errors"
 	"os/exec"
 )
 
@@ -36,9 +37,11 @@ func Add(files ...string) error {
 }
 
 // Remove removes the specified file from the working tree. If no files are provided all files will be removed.
-func Remove(files ...string) error {
+func Remove(recursive bool, files ...string) error {
 	args := []string{"rm"}
-	if len(files) == 0 {
+	if len(files) == 0 && !recursive {
+		return errors.New("git: Remove() called without specifing files or recursive")
+	} else if len(files) == 0 {
 		args = append(args, "-r", ".")
 	} else {
 		args = append(args, files...)

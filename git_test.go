@@ -1,6 +1,7 @@
 package git
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 )
@@ -9,6 +10,14 @@ type mockRunner struct{}
 
 func (m *mockRunner) Run() error {
 	return nil
+}
+func equalErr(errA, errB error) bool {
+	if errA != nil && errB != nil {
+		return errA.Error() == errB.Error()
+	} else if errA == nil && errB == nil {
+		return true
+	}
+	return false
 }
 
 func TestExecCommand(t *testing.T) {
@@ -48,7 +57,7 @@ func TestInit(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
@@ -78,7 +87,7 @@ func TestAdd(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
@@ -93,29 +102,50 @@ func TestAdd(t *testing.T) {
 func TestRemove(t *testing.T) {
 	cases := []struct {
 		CaseName   string
+		Recursive  bool
 		Files      []string
 		ExpectArgs []string
+		ExpectErr  error
 	}{
 		{
-			CaseName:   "No files",
+			CaseName:   "No files with recursive",
+			Recursive:  true,
 			Files:      []string{},
 			ExpectArgs: []string{"rm", "-r", "."},
+			ExpectErr:  nil,
+		},
+		{
+			CaseName:   "No files without recursive",
+			Recursive:  false,
+			Files:      []string{},
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("git: Remove() called without specifing files or recursive"),
 		},
 		{
 			CaseName:   "With files",
+			Recursive:  false,
 			Files:      []string{"file-1", "file-2"},
 			ExpectArgs: []string{"rm", "file-1", "file-2"},
+			ExpectErr:  nil,
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
 		}
-		Remove(c.Files...)
-		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		gotErr := Remove(c.Recursive, c.Files...)
+		t.Logf("Errors %t\n", !equalErr(c.ExpectErr, gotErr))
+		t.Logf("Args   %t\n", !reflect.DeepEqual(c.ExpectArgs, gotArgs))
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs,
+				c.ExpectErr,
+				gotArgs,
+				gotErr,
+			)
 		}
 	}
 }
@@ -138,7 +168,7 @@ func TestCommit(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
@@ -163,7 +193,7 @@ func TestBranch(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
@@ -188,7 +218,7 @@ func TestDeleteBranch(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
@@ -213,7 +243,7 @@ func TestCheckout(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
@@ -246,7 +276,7 @@ func TestTag(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
@@ -271,7 +301,7 @@ func TestDeleteTag(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
@@ -307,7 +337,7 @@ func TestMerge(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
