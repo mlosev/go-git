@@ -107,7 +107,7 @@ func TestClone(t *testing.T) {
 		}
 		gotErr := Clone(c.Repo, c.Dir)
 		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v",
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
 				c.CaseName,
 				c.ExpectArgs, c.ExpectErr,
 				gotArgs, gotErr,
