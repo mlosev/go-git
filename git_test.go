@@ -259,18 +259,28 @@ func TestTag(t *testing.T) {
 		Name       string
 		Msg        string
 		ExpectArgs []string
+		ExpectErr  error
 	}{
+		{
+			CaseName:   "Create a tag without specifying a tag name",
+			Name:       "",
+			Msg:        "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-get: Tag() no name specified"),
+		},
 		{
 			CaseName:   "Create a tag without a message",
 			Name:       "tag-name",
 			Msg:        "",
 			ExpectArgs: []string{"tag", "-a", "tag-name"},
+			ExpectErr:  nil,
 		},
 		{
 			CaseName:   "Create a tag with a message",
 			Name:       "tag-name",
 			Msg:        "tag-msg",
 			ExpectArgs: []string{"tag", "-m='tag-msg'", "tag-name"},
+			ExpectErr:  nil,
 		},
 	}
 	for _, c := range cases {
@@ -279,9 +289,13 @@ func TestTag(t *testing.T) {
 			gotArgs = args
 			return &mockRunner{}
 		}
-		Tag(c.Name, c.Msg)
-		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		gotErr := Tag(c.Name, c.Msg)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
 		}
 	}
 }

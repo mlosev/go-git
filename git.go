@@ -80,6 +80,9 @@ func Checkout(branch string) error {
 
 // Tag creates a new tag with the provided name and message
 func Tag(name, msg string) error {
+	if name == "" {
+		return errors.New("go-get: Tag() no name specified")
+	}
 	args := []string{"tag"}
 	if msg != "" {
 		args = append(args, "-m='"+msg+"'")
