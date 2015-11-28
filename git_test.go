@@ -233,11 +233,19 @@ func TestCheckout(t *testing.T) {
 		CaseName   string
 		Branch     string
 		ExpectArgs []string
+		ExpectErr  error
 	}{
 		{
 			CaseName:   "Checkout a branch",
 			Branch:     "branch",
 			ExpectArgs: []string{"checkout", "branch"},
+			ExpectErr:  nil,
+		},
+		{
+			CaseName:   "Checkout an unspecified branch",
+			Branch:     "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-get: Checkout() no branch name specified"),
 		},
 	}
 	for _, c := range cases {
@@ -246,9 +254,13 @@ func TestCheckout(t *testing.T) {
 			gotArgs = args
 			return &mockRunner{}
 		}
-		Checkout(c.Branch)
-		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		gotErr := Checkout(c.Branch)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v \ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
 		}
 	}
 }

@@ -74,6 +74,9 @@ func DeleteBranch(name string) error {
 
 // Checkout checks out a branch.
 func Checkout(branch string) error {
+	if branch == "" {
+		return errors.New("go-get: Checkout() no branch name specified")
+	}
 	args := []string{"checkout", branch}
 	return execCommand(args...).Run()
 }
