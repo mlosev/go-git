@@ -52,7 +52,6 @@ Commands slated for addition.
 
 Clone
 Remote Add
-Branch
 Status
 Push
 Fetch
