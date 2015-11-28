@@ -183,11 +183,19 @@ func TestBranch(t *testing.T) {
 		CaseName   string
 		Name       string
 		ExpectArgs []string
+		ExpectErr  error
 	}{
 		{
 			CaseName:   "Create a new branch",
 			Name:       "new-branch",
 			ExpectArgs: []string{"branch", "new-branch"},
+			ExpectErr:  nil,
+		},
+		{
+			CaseName:   "Create a new branch without specifying a name",
+			Name:       "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-get: Branch() no branch name specified"),
 		},
 	}
 	for _, c := range cases {
@@ -196,9 +204,13 @@ func TestBranch(t *testing.T) {
 			gotArgs = args
 			return &mockRunner{}
 		}
-		Branch(c.Name)
-		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		gotErr := Branch(c.Name)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
 		}
 	}
 }

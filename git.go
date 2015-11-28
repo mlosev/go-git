@@ -62,6 +62,9 @@ func Commit(msg string) error {
 
 // Branch creates a new branch.
 func Branch(name string) error {
+	if name == "" {
+		return errors.New("go-get: Branch() no branch name specified")
+	}
 	args := []string{"branch", name}
 	return execCommand(args...).Run()
 }
