@@ -266,7 +266,7 @@ func TestTag(t *testing.T) {
 			Name:       "",
 			Msg:        "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-get: Tag() no name specified"),
+			ExpectErr:  errors.New("go-get: Tag() no tag name specified"),
 		},
 		{
 			CaseName:   "Create a tag without a message",
@@ -311,7 +311,7 @@ func TestDeleteTag(t *testing.T) {
 			CaseName:   "Delete a tag without specifying a tag name",
 			Name:       "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-get: DeleteTag() no name specified"),
+			ExpectErr:  errors.New("go-get: DeleteTag() no tag name specified"),
 		},
 		{
 			CaseName:   "Delete a tag",
