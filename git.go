@@ -96,8 +96,7 @@ func Checkout(branch string) error {
 	if branch == "" {
 		return errors.New("go-get: Checkout() no branch name specified")
 	}
-	args := []string{"checkout", branch}
-	return execCommand(args...).Run()
+	return execCommand("checkout", branch).Run()
 }
 
 // Tag creates a new tag with the provided name and message
