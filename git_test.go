@@ -119,7 +119,7 @@ func TestRemove(t *testing.T) {
 			Recursive:  false,
 			Files:      []string{},
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("git: Remove() called without specifing files or recursive"),
+			ExpectErr:  errors.New("go-git: Remove() called without specifing files or recursive"),
 		},
 		{
 			CaseName:   "With files",
@@ -136,8 +136,6 @@ func TestRemove(t *testing.T) {
 			return &mockRunner{}
 		}
 		gotErr := Remove(c.Recursive, c.Files...)
-		t.Logf("Errors %t\n", !equalErr(c.ExpectErr, gotErr))
-		t.Logf("Args   %t\n", !reflect.DeepEqual(c.ExpectArgs, gotArgs))
 		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
 			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
 				c.CaseName,
@@ -320,13 +318,23 @@ func TestMerge(t *testing.T) {
 		Msg         string
 		FastForward bool
 		ExpectArgs  []string
+		ExpectErr   error
 	}{
+		{
+			CaseName:    "Merge a branch without specifying a branch",
+			Branch:      "",
+			Msg:         "",
+			FastForward: true,
+			ExpectArgs:  []string{},
+			ExpectErr:   errors.New("go-git: Merge() called without specifying a branch"),
+		},
 		{
 			CaseName:    "Merge a branch",
 			Branch:      "branch-name",
 			Msg:         "merge-message",
 			FastForward: true,
 			ExpectArgs:  []string{"merge", "-m='merge-message'", "branch-name"},
+			ExpectErr:   nil,
 		},
 		{
 			CaseName:    "Merge a branch without fastforwarding",
@@ -334,6 +342,7 @@ func TestMerge(t *testing.T) {
 			Msg:         "merge-message",
 			FastForward: false,
 			ExpectArgs:  []string{"merge", "-m='merge-message'", "--no-ff", "branch-name"},
+			ExpectErr:   nil,
 		},
 	}
 	for _, c := range cases {
@@ -342,9 +351,13 @@ func TestMerge(t *testing.T) {
 			gotArgs = args
 			return &mockRunner{}
 		}
-		Merge(c.Branch, c.Msg, c.FastForward)
-		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		gotErr := Merge(c.Branch, c.Msg, c.FastForward)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v\ngot      : %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
 		}
 	}
 }

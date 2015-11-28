@@ -40,7 +40,7 @@ func Add(files ...string) error {
 func Remove(recursive bool, files ...string) error {
 	args := []string{"rm"}
 	if len(files) == 0 && !recursive {
-		return errors.New("git: Remove() called without specifing files or recursive")
+		return errors.New("go-git: Remove() called without specifing files or recursive")
 	} else if len(files) == 0 {
 		args = append(args, "-r", ".")
 	} else {
@@ -98,6 +98,9 @@ func DeleteTag(name string) error {
 
 // Merge Merges branch with the current branch.
 func Merge(branch, msg string, fastforward bool) error {
+	if branch == "" {
+		return errors.New("go-git: Merge() called without specifying a branch")
+	}
 	args := []string{"merge", "-m='" + msg + "'"}
 	if !fastforward {
 		args = append(args, "--no-ff")
