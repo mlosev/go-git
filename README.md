@@ -52,4 +52,3 @@ Commands slated for addition.
 
 Status
 Push
-Pull
