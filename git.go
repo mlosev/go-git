@@ -1,6 +1,7 @@
 package git
 
 import (
+	"errors"
 	"os/exec"
 )
 
@@ -36,9 +37,11 @@ func Add(files ...string) error {
 }
 
 // Remove removes the specified file from the working tree. If no files are provided all files will be removed.
-func Remove(files ...string) error {
+func Remove(recursive bool, files ...string) error {
 	args := []string{"rm"}
-	if len(files) == 0 {
+	if len(files) == 0 && !recursive {
+		return errors.New("go-git: Remove() called without specifying files or recursive")
+	} else if len(files) == 0 {
 		args = append(args, "-r", ".")
 	} else {
 		args = append(args, files...)
@@ -59,24 +62,36 @@ func Commit(msg string) error {
 
 // Branch creates a new branch.
 func Branch(name string) error {
+	if name == "" {
+		return errors.New("go-get: Branch() no branch name specified")
+	}
 	args := []string{"branch", name}
 	return execCommand(args...).Run()
 }
 
 // DeleteBranch deletes an existing branch.
 func DeleteBranch(name string) error {
+	if name == "" {
+		return errors.New("go-get: DeleteBranch() no branch name specified")
+	}
 	args := []string{"branch", "-d", name}
 	return execCommand(args...).Run()
 }
 
 // Checkout checks out a branch.
 func Checkout(branch string) error {
+	if branch == "" {
+		return errors.New("go-get: Checkout() no branch name specified")
+	}
 	args := []string{"checkout", branch}
 	return execCommand(args...).Run()
 }
 
 // Tag creates a new tag with the provided name and message
 func Tag(name, msg string) error {
+	if name == "" {
+		return errors.New("go-get: Tag() no tag name specified")
+	}
 	args := []string{"tag"}
 	if msg != "" {
 		args = append(args, "-m='"+msg+"'")
@@ -89,12 +104,18 @@ func Tag(name, msg string) error {
 
 // DeleteTag deletes the named tag.
 func DeleteTag(name string) error {
+	if name == "" {
+		return errors.New("go-get: DeleteTag() no tag name specified")
+	}
 	args := []string{"tag", "-d", name}
 	return execCommand(args...).Run()
 }
 
 // Merge Merges branch with the current branch.
 func Merge(branch, msg string, fastforward bool) error {
+	if branch == "" {
+		return errors.New("go-git: Merge() called without specifying a branch")
+	}
 	args := []string{"merge", "-m='" + msg + "'"}
 	if !fastforward {
 		args = append(args, "--no-ff")

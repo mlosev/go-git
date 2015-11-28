@@ -1,6 +1,7 @@
 package git
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 )
@@ -9,6 +10,14 @@ type mockRunner struct{}
 
 func (m *mockRunner) Run() error {
 	return nil
+}
+func equalErr(errA, errB error) bool {
+	if errA != nil && errB != nil {
+		return errA.Error() == errB.Error()
+	} else if errA == nil && errB == nil {
+		return true
+	}
+	return false
 }
 
 func TestExecCommand(t *testing.T) {
@@ -48,7 +57,7 @@ func TestInit(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
@@ -78,7 +87,7 @@ func TestAdd(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
@@ -93,29 +102,48 @@ func TestAdd(t *testing.T) {
 func TestRemove(t *testing.T) {
 	cases := []struct {
 		CaseName   string
+		Recursive  bool
 		Files      []string
 		ExpectArgs []string
+		ExpectErr  error
 	}{
 		{
-			CaseName:   "No files",
+			CaseName:   "No files with recursive",
+			Recursive:  true,
 			Files:      []string{},
 			ExpectArgs: []string{"rm", "-r", "."},
+			ExpectErr:  nil,
+		},
+		{
+			CaseName:   "No files without recursive",
+			Recursive:  false,
+			Files:      []string{},
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-git: Remove() called without specifying files or recursive"),
 		},
 		{
 			CaseName:   "With files",
+			Recursive:  false,
 			Files:      []string{"file-1", "file-2"},
 			ExpectArgs: []string{"rm", "file-1", "file-2"},
+			ExpectErr:  nil,
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
 		}
-		Remove(c.Files...)
-		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		gotErr := Remove(c.Recursive, c.Files...)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs,
+				c.ExpectErr,
+				gotArgs,
+				gotErr,
+			)
 		}
 	}
 }
@@ -138,7 +166,7 @@ func TestCommit(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
@@ -155,22 +183,34 @@ func TestBranch(t *testing.T) {
 		CaseName   string
 		Name       string
 		ExpectArgs []string
+		ExpectErr  error
 	}{
 		{
 			CaseName:   "Create a new branch",
 			Name:       "new-branch",
 			ExpectArgs: []string{"branch", "new-branch"},
+			ExpectErr:  nil,
+		},
+		{
+			CaseName:   "Create a new branch without specifying a name",
+			Name:       "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-get: Branch() no branch name specified"),
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
 		}
-		Branch(c.Name)
-		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		gotErr := Branch(c.Name)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
 		}
 	}
 }
@@ -180,22 +220,34 @@ func TestDeleteBranch(t *testing.T) {
 		CaseName   string
 		Name       string
 		ExpectArgs []string
+		ExpectErr  error
 	}{
+		{
+			CaseName:   "Delete an unspecified branch",
+			Name:       "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-get: DeleteBranch() no branch name specified"),
+		},
 		{
 			CaseName:   "Delete a branch",
 			Name:       "branch-to-be-deleted",
 			ExpectArgs: []string{"branch", "-d", "branch-to-be-deleted"},
+			ExpectErr:  nil,
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
 		}
-		DeleteBranch(c.Name)
-		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		gotErr := DeleteBranch(c.Name)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
 		}
 	}
 }
@@ -205,22 +257,34 @@ func TestCheckout(t *testing.T) {
 		CaseName   string
 		Branch     string
 		ExpectArgs []string
+		ExpectErr  error
 	}{
 		{
 			CaseName:   "Checkout a branch",
 			Branch:     "branch",
 			ExpectArgs: []string{"checkout", "branch"},
+			ExpectErr:  nil,
+		},
+		{
+			CaseName:   "Checkout an unspecified branch",
+			Branch:     "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-get: Checkout() no branch name specified"),
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
 		}
-		Checkout(c.Branch)
-		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		gotErr := Checkout(c.Branch)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v \ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
 		}
 	}
 }
@@ -231,29 +295,43 @@ func TestTag(t *testing.T) {
 		Name       string
 		Msg        string
 		ExpectArgs []string
+		ExpectErr  error
 	}{
+		{
+			CaseName:   "Create a tag without specifying a tag name",
+			Name:       "",
+			Msg:        "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-get: Tag() no tag name specified"),
+		},
 		{
 			CaseName:   "Create a tag without a message",
 			Name:       "tag-name",
 			Msg:        "",
 			ExpectArgs: []string{"tag", "-a", "tag-name"},
+			ExpectErr:  nil,
 		},
 		{
 			CaseName:   "Create a tag with a message",
 			Name:       "tag-name",
 			Msg:        "tag-msg",
 			ExpectArgs: []string{"tag", "-m='tag-msg'", "tag-name"},
+			ExpectErr:  nil,
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
 		}
-		Tag(c.Name, c.Msg)
-		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		gotErr := Tag(c.Name, c.Msg)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
 		}
 	}
 }
@@ -263,22 +341,34 @@ func TestDeleteTag(t *testing.T) {
 		CaseName   string
 		Name       string
 		ExpectArgs []string
+		ExpectErr  error
 	}{
+		{
+			CaseName:   "Delete a tag without specifying a tag name",
+			Name:       "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-get: DeleteTag() no tag name specified"),
+		},
 		{
 			CaseName:   "Delete a tag",
 			Name:       "tag-name",
 			ExpectArgs: []string{"tag", "-d", "tag-name"},
+			ExpectErr:  nil,
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
 		}
-		DeleteTag(c.Name)
-		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		gotErr := DeleteTag(c.Name)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
 		}
 	}
 }
@@ -290,13 +380,23 @@ func TestMerge(t *testing.T) {
 		Msg         string
 		FastForward bool
 		ExpectArgs  []string
+		ExpectErr   error
 	}{
+		{
+			CaseName:    "Merge a branch without specifying a branch",
+			Branch:      "",
+			Msg:         "",
+			FastForward: true,
+			ExpectArgs:  []string{},
+			ExpectErr:   errors.New("go-git: Merge() called without specifying a branch"),
+		},
 		{
 			CaseName:    "Merge a branch",
 			Branch:      "branch-name",
 			Msg:         "merge-message",
 			FastForward: true,
 			ExpectArgs:  []string{"merge", "-m='merge-message'", "branch-name"},
+			ExpectErr:   nil,
 		},
 		{
 			CaseName:    "Merge a branch without fastforwarding",
@@ -304,17 +404,22 @@ func TestMerge(t *testing.T) {
 			Msg:         "merge-message",
 			FastForward: false,
 			ExpectArgs:  []string{"merge", "-m='merge-message'", "--no-ff", "branch-name"},
+			ExpectErr:   nil,
 		},
 	}
 	for _, c := range cases {
-		var gotArgs []string
+		gotArgs := []string{}
 		execCommand = func(args ...string) runner {
 			gotArgs = args
 			return &mockRunner{}
 		}
-		Merge(c.Branch, c.Msg, c.FastForward)
-		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		gotErr := Merge(c.Branch, c.Msg, c.FastForward)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v\ngot      : %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
 		}
 	}
 }
