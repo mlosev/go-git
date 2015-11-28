@@ -56,3 +56,21 @@ func Commit(msg string) error {
 	}
 	return execCommand(args...).Run()
 }
+
+// Branch creates a new branch.
+func Branch(name string) error {
+	args := []string{"branch", name}
+	return execCommand(args...).Run()
+}
+
+// DeleteBranch deletes an existing branch.
+func DeleteBranch(name string) error {
+	args := []string{"branch", "-d", name}
+	return execCommand(args...).Run()
+}
+
+// Checkout checks out a branch.
+func Checkout(branch string) error {
+	args := []string{"checkout", branch}
+	return execCommand(args...).Run()
+}
