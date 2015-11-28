@@ -92,6 +92,9 @@ func Tag(name, msg string) error {
 
 // DeleteTag deletes the named tag.
 func DeleteTag(name string) error {
+	if name == "" {
+		return errors.New("go-get: DeleteTag() no name specified")
+	}
 	args := []string{"tag", "-d", name}
 	return execCommand(args...).Run()
 }

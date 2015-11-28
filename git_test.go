@@ -291,11 +291,19 @@ func TestDeleteTag(t *testing.T) {
 		CaseName   string
 		Name       string
 		ExpectArgs []string
+		ExpectErr  error
 	}{
+		{
+			CaseName:   "Delete a tag without specifying a tag name",
+			Name:       "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-get: DeleteTag() no name specified"),
+		},
 		{
 			CaseName:   "Delete a tag",
 			Name:       "tag-name",
 			ExpectArgs: []string{"tag", "-d", "tag-name"},
+			ExpectErr:  nil,
 		},
 	}
 	for _, c := range cases {
@@ -304,9 +312,13 @@ func TestDeleteTag(t *testing.T) {
 			gotArgs = args
 			return &mockRunner{}
 		}
-		DeleteTag(c.Name)
-		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		gotErr := DeleteTag(c.Name)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
 		}
 	}
 }
