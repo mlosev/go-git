@@ -25,6 +25,19 @@ func Init(dir, template string) error {
 	return execCommand(args...).Run()
 }
 
+// Clone clones the specified repository into dir.
+// If dir is not provided the specified repository is cloned into the present working directory.
+func Clone(repo, dir string) error {
+	if repo == "" {
+		return errors.New("go-get: Clone() no repository specified")
+	}
+	args := []string{"clone", repo}
+	if dir != "" {
+		args = append(args, dir)
+	}
+	return execCommand(args...).Run()
+}
+
 // Add adds the specified files to the working tree. If no files are provided all files will be added.
 func Add(files ...string) error {
 	args := []string{"add"}
