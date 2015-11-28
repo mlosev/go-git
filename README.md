@@ -50,7 +50,6 @@ ToDo
 
 Commands slated for addition.
 
-Remote Add
 Status
 Push
 Fetch
