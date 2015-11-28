@@ -144,8 +144,7 @@ func RemoteAdd(name, location string) error {
 	if location == "" {
 		return errors.New("got-get: RemoteAdd() no location specified")
 	}
-	args := []string{"remote", "add", name, location}
-	return execCommand(args...).Run()
+	return execCommand("remote", "add", name, location).Run()
 }
 
 func RemoteRemove(name string) error {
