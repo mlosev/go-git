@@ -136,3 +136,14 @@ func Merge(branch, msg string, fastforward bool) error {
 	args = append(args, branch)
 	return execCommand(args...).Run()
 }
+
+func RemoteAdd(name, location string) error {
+	if name == "" {
+		return errors.New("got-get: RemoteAdd() no name specified")
+	}
+	if location == "" {
+		return errors.New("got-get: RemoteAdd() no location specified")
+	}
+	args := []string{"remote", "add", name, location}
+	return execCommand(args...).Run()
+}
