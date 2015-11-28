@@ -40,7 +40,7 @@ func Add(files ...string) error {
 func Remove(recursive bool, files ...string) error {
 	args := []string{"rm"}
 	if len(files) == 0 && !recursive {
-		return errors.New("go-git: Remove() called without specifing files or recursive")
+		return errors.New("go-git: Remove() called without specifying files or recursive")
 	} else if len(files) == 0 {
 		args = append(args, "-r", ".")
 	} else {
