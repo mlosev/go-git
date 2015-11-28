@@ -52,5 +52,4 @@ Commands slated for addition.
 
 Status
 Push
-Fetch
 Pull
