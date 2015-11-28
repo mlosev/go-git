@@ -78,8 +78,7 @@ func Branch(name string) error {
 	if name == "" {
 		return errors.New("go-get: Branch() no branch name specified")
 	}
-	args := []string{"branch", name}
-	return execCommand(args...).Run()
+	return execCommand("branch", name).Run()
 }
 
 // DeleteBranch deletes an existing branch.
@@ -87,8 +86,7 @@ func DeleteBranch(name string) error {
 	if name == "" {
 		return errors.New("go-get: DeleteBranch() no branch name specified")
 	}
-	args := []string{"branch", "-d", name}
-	return execCommand(args...).Run()
+	return execCommand("branch", "-d", name).Run()
 }
 
 // Checkout checks out a branch.
