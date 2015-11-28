@@ -220,11 +220,19 @@ func TestDeleteBranch(t *testing.T) {
 		CaseName   string
 		Name       string
 		ExpectArgs []string
+		ExpectErr  error
 	}{
+		{
+			CaseName:   "Delete an unspecified branch",
+			Name:       "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-get: DeleteBranch() no branch name specified"),
+		},
 		{
 			CaseName:   "Delete a branch",
 			Name:       "branch-to-be-deleted",
 			ExpectArgs: []string{"branch", "-d", "branch-to-be-deleted"},
+			ExpectErr:  nil,
 		},
 	}
 	for _, c := range cases {
@@ -233,9 +241,13 @@ func TestDeleteBranch(t *testing.T) {
 			gotArgs = args
 			return &mockRunner{}
 		}
-		DeleteBranch(c.Name)
-		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		gotErr := DeleteBranch(c.Name)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
 		}
 	}
 }
