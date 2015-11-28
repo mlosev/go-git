@@ -69,6 +69,53 @@ func TestInit(t *testing.T) {
 	}
 }
 
+func TestClone(t *testing.T) {
+	cases := []struct {
+		CaseName   string
+		Repo       string
+		Dir        string
+		ExpectArgs []string
+		ExpectErr  error
+	}{
+		{
+			CaseName:   "Attempt to clone a repository without specifying a repository",
+			Repo:       "",
+			Dir:        "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-get: Clone() no repository specified"),
+		},
+		{
+			CaseName:   "Clone a repository",
+			Repo:       "repo-name",
+			Dir:        "",
+			ExpectArgs: []string{"clone", "repo-name"},
+			ExpectErr:  nil,
+		},
+		{
+			CaseName:   "Clone a repository into a specified directory",
+			Repo:       "repo-name",
+			Dir:        "dir-name",
+			ExpectArgs: []string{"clone", "repo-name", "dir-name"},
+			ExpectErr:  nil,
+		},
+	}
+	for _, c := range cases {
+		gotArgs := []string{}
+		execCommand = func(args ...string) runner {
+			gotArgs = args
+			return &mockRunner{}
+		}
+		gotErr := Clone(c.Repo, c.Dir)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v\ngot      : %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
+		}
+	}
+}
+
 func TestAdd(t *testing.T) {
 	cases := []struct {
 		CaseName   string
