@@ -3,6 +3,8 @@ go-git
 
 go-git is a simple go wrapper around git.
 
+go-git is currently on version 0.0.1. Its API is experimental and may change at any time.
+
 Installation
 --------------------------------------------------------------------------------
 
