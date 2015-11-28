@@ -50,7 +50,6 @@ ToDo
 
 Commands slated for addition.
 
-Clone
 Remote Add
 Status
 Push
