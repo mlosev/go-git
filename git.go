@@ -159,3 +159,16 @@ func RemoteSetURL(name, location string) error {
 	}
 	return execCommand("remote", "set-url", name, location).Run()
 }
+
+func Fetch(remote string, branches ...string) error {
+	if remote == "" {
+		return errors.New("go-git: Fetch() no remote specified")
+	}
+	args := []string{"fetch", remote}
+	if len(branches) == 0 {
+		args = append(args, "--all")
+	} else {
+		args = append(args, branches...)
+	}
+	return execCommand(args...).Run()
+}

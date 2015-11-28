@@ -599,3 +599,50 @@ func TestRemoteSetURL(t *testing.T) {
 		}
 	}
 }
+
+func TestFetch(t *testing.T) {
+	cases := []struct {
+		CaseName   string
+		Remote     string
+		Branches   []string
+		ExpectArgs []string
+		ExpectErr  error
+	}{
+		{
+			CaseName:   "No remote specified",
+			Remote:     "",
+			Branches:   []string{},
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-git: Fetch() no remote specified"),
+		},
+		{
+			CaseName:   "No branches specified",
+			Remote:     "remote-location",
+			Branches:   []string{},
+			ExpectArgs: []string{"fetch", "remote-location", "--all"},
+			ExpectErr:  nil,
+		},
+		{
+			CaseName:   "Fetch specific branches",
+			Remote:     "remote-name",
+			Branches:   []string{"branch-1", "branch-2", "branch-3"},
+			ExpectArgs: []string{"fetch", "remote-name", "branch-1", "branch-2", "branch-3"},
+			ExpectErr:  nil,
+		},
+	}
+	for _, c := range cases {
+		gotArgs := []string{}
+		execCommand = func(args ...string) runner {
+			gotArgs = args
+			return &mockRunner{}
+		}
+		gotErr := Fetch(c.Remote, c.Branches...)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
+		}
+	}
+}
