@@ -78,8 +78,7 @@ func Branch(name string) error {
 	if name == "" {
 		return errors.New("go-get: Branch() no branch name specified")
 	}
-	args := []string{"branch", name}
-	return execCommand(args...).Run()
+	return execCommand("branch", name).Run()
 }
 
 // DeleteBranch deletes an existing branch.
@@ -87,8 +86,7 @@ func DeleteBranch(name string) error {
 	if name == "" {
 		return errors.New("go-get: DeleteBranch() no branch name specified")
 	}
-	args := []string{"branch", "-d", name}
-	return execCommand(args...).Run()
+	return execCommand("branch", "-d", name).Run()
 }
 
 // Checkout checks out a branch.
@@ -96,8 +94,7 @@ func Checkout(branch string) error {
 	if branch == "" {
 		return errors.New("go-get: Checkout() no branch name specified")
 	}
-	args := []string{"checkout", branch}
-	return execCommand(args...).Run()
+	return execCommand("checkout", branch).Run()
 }
 
 // Tag creates a new tag with the provided name and message
@@ -120,8 +117,7 @@ func DeleteTag(name string) error {
 	if name == "" {
 		return errors.New("go-get: DeleteTag() no tag name specified")
 	}
-	args := []string{"tag", "-d", name}
-	return execCommand(args...).Run()
+	return execCommand("tag", "-d", name).Run()
 }
 
 // Merge Merges branch with the current branch.
