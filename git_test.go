@@ -82,7 +82,7 @@ func TestClone(t *testing.T) {
 			Repo:       "",
 			Dir:        "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-get: Clone() no repository specified"),
+			ExpectErr:  errors.New("go-git: Clone() no repository specified"),
 		},
 		{
 			CaseName:   "Clone a repository",
@@ -240,7 +240,7 @@ func TestBranch(t *testing.T) {
 			CaseName:   "Create a new branch without specifying a name",
 			Name:       "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-get: Branch() no branch name specified"),
+			ExpectErr:  errors.New("go-git: Branch() no branch name specified"),
 		},
 	}
 	for _, c := range cases {
@@ -271,7 +271,7 @@ func TestDeleteBranch(t *testing.T) {
 			CaseName:   "Delete an unspecified branch",
 			Name:       "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-get: DeleteBranch() no branch name specified"),
+			ExpectErr:  errors.New("go-git: DeleteBranch() no branch name specified"),
 		},
 		{
 			CaseName:   "Delete a branch",
@@ -314,7 +314,7 @@ func TestCheckout(t *testing.T) {
 			CaseName:   "Checkout an unspecified branch",
 			Branch:     "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-get: Checkout() no branch name specified"),
+			ExpectErr:  errors.New("go-git: Checkout() no branch name specified"),
 		},
 	}
 	for _, c := range cases {
@@ -347,7 +347,7 @@ func TestTag(t *testing.T) {
 			Name:       "",
 			Msg:        "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-get: Tag() no tag name specified"),
+			ExpectErr:  errors.New("go-git: Tag() no tag name specified"),
 		},
 		{
 			CaseName:   "Create a tag without a message",
@@ -392,7 +392,7 @@ func TestDeleteTag(t *testing.T) {
 			CaseName:   "Delete a tag without specifying a tag name",
 			Name:       "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-get: DeleteTag() no tag name specified"),
+			ExpectErr:  errors.New("go-git: DeleteTag() no tag name specified"),
 		},
 		{
 			CaseName:   "Delete a tag",
@@ -482,14 +482,14 @@ func TestRemoteAdd(t *testing.T) {
 			Name:       "",
 			Location:   "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("got-get: RemoteAdd() no name specified"),
+			ExpectErr:  errors.New("go-git: RemoteAdd() no name specified"),
 		},
 		{
 			CaseName:   "No location specified",
 			Name:       "remote-name",
 			Location:   "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("got-get: RemoteAdd() no location specified"),
+			ExpectErr:  errors.New("go-git: RemoteAdd() no location specified"),
 		},
 		{
 			CaseName:   "Add remote",
@@ -527,7 +527,7 @@ func TestRemoteRemove(t *testing.T) {
 			CaseName:   "No name specified",
 			Name:       "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("got-get: RemoteRemove() no name specified"),
+			ExpectErr:  errors.New("go-git: RemoteRemove() no name specified"),
 		},
 		{
 			CaseName:   "Remove remote",

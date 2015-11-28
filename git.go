@@ -29,7 +29,7 @@ func Init(dir, template string) error {
 // If dir is not provided the specified repository is cloned into the present working directory.
 func Clone(repo, dir string) error {
 	if repo == "" {
-		return errors.New("go-get: Clone() no repository specified")
+		return errors.New("go-git: Clone() no repository specified")
 	}
 	args := []string{"clone", repo}
 	if dir != "" {
@@ -76,7 +76,7 @@ func Commit(msg string) error {
 // Branch creates a new branch.
 func Branch(name string) error {
 	if name == "" {
-		return errors.New("go-get: Branch() no branch name specified")
+		return errors.New("go-git: Branch() no branch name specified")
 	}
 	return execCommand("branch", name).Run()
 }
@@ -84,7 +84,7 @@ func Branch(name string) error {
 // DeleteBranch deletes an existing branch.
 func DeleteBranch(name string) error {
 	if name == "" {
-		return errors.New("go-get: DeleteBranch() no branch name specified")
+		return errors.New("go-git: DeleteBranch() no branch name specified")
 	}
 	return execCommand("branch", "-d", name).Run()
 }
@@ -92,7 +92,7 @@ func DeleteBranch(name string) error {
 // Checkout checks out a branch.
 func Checkout(branch string) error {
 	if branch == "" {
-		return errors.New("go-get: Checkout() no branch name specified")
+		return errors.New("go-git: Checkout() no branch name specified")
 	}
 	return execCommand("checkout", branch).Run()
 }
@@ -100,7 +100,7 @@ func Checkout(branch string) error {
 // Tag creates a new tag with the provided name and message
 func Tag(name, msg string) error {
 	if name == "" {
-		return errors.New("go-get: Tag() no tag name specified")
+		return errors.New("go-git: Tag() no tag name specified")
 	}
 	args := []string{"tag"}
 	if msg != "" {
@@ -115,7 +115,7 @@ func Tag(name, msg string) error {
 // DeleteTag deletes the named tag.
 func DeleteTag(name string) error {
 	if name == "" {
-		return errors.New("go-get: DeleteTag() no tag name specified")
+		return errors.New("go-git: DeleteTag() no tag name specified")
 	}
 	return execCommand("tag", "-d", name).Run()
 }
@@ -135,17 +135,17 @@ func Merge(branch, msg string, fastforward bool) error {
 
 func RemoteAdd(name, location string) error {
 	if name == "" {
-		return errors.New("got-get: RemoteAdd() no name specified")
+		return errors.New("go-git: RemoteAdd() no name specified")
 	}
 	if location == "" {
-		return errors.New("got-get: RemoteAdd() no location specified")
+		return errors.New("go-git: RemoteAdd() no location specified")
 	}
 	return execCommand("remote", "add", name, location).Run()
 }
 
 func RemoteRemove(name string) error {
 	if name == "" {
-		return errors.New("got-get: RemoteRemove() no name specified")
+		return errors.New("go-git: RemoteRemove() no name specified")
 	}
 	return execCommand("remote", "rm", name).Run()
 }
