@@ -492,7 +492,7 @@ func TestRemoteAdd(t *testing.T) {
 			ExpectErr:  errors.New("got-get: RemoteAdd() no location specified"),
 		},
 		{
-			CaseName:   "No location specified",
+			CaseName:   "Add remote",
 			Name:       "remote-name",
 			Location:   "remote-location",
 			ExpectArgs: []string{"remote", "add", "remote-name", "remote-location"},
@@ -506,6 +506,43 @@ func TestRemoteAdd(t *testing.T) {
 			return &mockRunner{}
 		}
 		gotErr := RemoteAdd(c.Name, c.Location)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
+		}
+	}
+}
+
+func TestRemoteRemove(t *testing.T) {
+	cases := []struct {
+		CaseName   string
+		Name       string
+		ExpectArgs []string
+		ExpectErr  error
+	}{
+		{
+			CaseName:   "No name specified",
+			Name:       "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("got-get: RemoteRemove() no name specified"),
+		},
+		{
+			CaseName:   "Remove remote",
+			Name:       "remote-name",
+			ExpectArgs: []string{"remote", "rm", "remote-name"},
+			ExpectErr:  nil,
+		},
+	}
+	for _, c := range cases {
+		gotArgs := []string{}
+		execCommand = func(args ...string) runner {
+			gotArgs = args
+			return &mockRunner{}
+		}
+		gotErr := RemoteRemove(c.Name)
 		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
 			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
 				c.CaseName,

@@ -147,3 +147,10 @@ func RemoteAdd(name, location string) error {
 	args := []string{"remote", "add", name, location}
 	return execCommand(args...).Run()
 }
+
+func RemoteRemove(name string) error {
+	if name == "" {
+		return errors.New("got-get: RemoteRemove() no name specified")
+	}
+	return execCommand("remote", "rm", name).Run()
+}
