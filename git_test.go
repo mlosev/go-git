@@ -82,7 +82,7 @@ func TestClone(t *testing.T) {
 			Repo:       "",
 			Dir:        "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-get: Clone() no repository specified"),
+			ExpectErr:  errors.New("go-git: Clone() no repository specified"),
 		},
 		{
 			CaseName:   "Clone a repository",
@@ -107,7 +107,7 @@ func TestClone(t *testing.T) {
 		}
 		gotErr := Clone(c.Repo, c.Dir)
 		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v",
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
 				c.CaseName,
 				c.ExpectArgs, c.ExpectErr,
 				gotArgs, gotErr,
@@ -186,10 +186,8 @@ func TestRemove(t *testing.T) {
 		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
 			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
 				c.CaseName,
-				c.ExpectArgs,
-				c.ExpectErr,
-				gotArgs,
-				gotErr,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
 			)
 		}
 	}
@@ -242,7 +240,7 @@ func TestBranch(t *testing.T) {
 			CaseName:   "Create a new branch without specifying a name",
 			Name:       "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-get: Branch() no branch name specified"),
+			ExpectErr:  errors.New("go-git: Branch() no branch name specified"),
 		},
 	}
 	for _, c := range cases {
@@ -273,7 +271,7 @@ func TestDeleteBranch(t *testing.T) {
 			CaseName:   "Delete an unspecified branch",
 			Name:       "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-get: DeleteBranch() no branch name specified"),
+			ExpectErr:  errors.New("go-git: DeleteBranch() no branch name specified"),
 		},
 		{
 			CaseName:   "Delete a branch",
@@ -316,7 +314,7 @@ func TestCheckout(t *testing.T) {
 			CaseName:   "Checkout an unspecified branch",
 			Branch:     "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-get: Checkout() no branch name specified"),
+			ExpectErr:  errors.New("go-git: Checkout() no branch name specified"),
 		},
 	}
 	for _, c := range cases {
@@ -349,7 +347,7 @@ func TestTag(t *testing.T) {
 			Name:       "",
 			Msg:        "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-get: Tag() no tag name specified"),
+			ExpectErr:  errors.New("go-git: Tag() no tag name specified"),
 		},
 		{
 			CaseName:   "Create a tag without a message",
@@ -394,7 +392,7 @@ func TestDeleteTag(t *testing.T) {
 			CaseName:   "Delete a tag without specifying a tag name",
 			Name:       "",
 			ExpectArgs: []string{},
-			ExpectErr:  errors.New("go-get: DeleteTag() no tag name specified"),
+			ExpectErr:  errors.New("go-git: DeleteTag() no tag name specified"),
 		},
 		{
 			CaseName:   "Delete a tag",
@@ -462,7 +460,232 @@ func TestMerge(t *testing.T) {
 		}
 		gotErr := Merge(c.Branch, c.Msg, c.FastForward)
 		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
-			t.Errorf("%s\nexpected : %v\ngot      : %v",
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
+		}
+	}
+}
+
+func TestRemoteAdd(t *testing.T) {
+	cases := []struct {
+		CaseName   string
+		Name       string
+		Location   string
+		ExpectArgs []string
+		ExpectErr  error
+	}{
+		{
+			CaseName:   "No name specified",
+			Name:       "",
+			Location:   "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-git: RemoteAdd() no name specified"),
+		},
+		{
+			CaseName:   "No location specified",
+			Name:       "remote-name",
+			Location:   "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-git: RemoteAdd() no location specified"),
+		},
+		{
+			CaseName:   "Add remote",
+			Name:       "remote-name",
+			Location:   "remote-location",
+			ExpectArgs: []string{"remote", "add", "remote-name", "remote-location"},
+			ExpectErr:  nil,
+		},
+	}
+	for _, c := range cases {
+		gotArgs := []string{}
+		execCommand = func(args ...string) runner {
+			gotArgs = args
+			return &mockRunner{}
+		}
+		gotErr := RemoteAdd(c.Name, c.Location)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
+		}
+	}
+}
+
+func TestRemoteRemove(t *testing.T) {
+	cases := []struct {
+		CaseName   string
+		Name       string
+		ExpectArgs []string
+		ExpectErr  error
+	}{
+		{
+			CaseName:   "No name specified",
+			Name:       "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-git: RemoteRemove() no name specified"),
+		},
+		{
+			CaseName:   "Remove remote",
+			Name:       "remote-name",
+			ExpectArgs: []string{"remote", "rm", "remote-name"},
+			ExpectErr:  nil,
+		},
+	}
+	for _, c := range cases {
+		gotArgs := []string{}
+		execCommand = func(args ...string) runner {
+			gotArgs = args
+			return &mockRunner{}
+		}
+		gotErr := RemoteRemove(c.Name)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
+		}
+	}
+}
+
+func TestRemoteSetURL(t *testing.T) {
+	cases := []struct {
+		CaseName   string
+		Name       string
+		Location   string
+		ExpectArgs []string
+		ExpectErr  error
+	}{
+		{
+			CaseName:   "No name specified",
+			Name:       "",
+			Location:   "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-git: RemoteSetURL() no name specified"),
+		},
+		{
+			CaseName:   "No location specified",
+			Name:       "remote-name",
+			Location:   "",
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-git: RemoteSetURL() no location specified"),
+		},
+		{
+			CaseName:   "Set remote url",
+			Name:       "remote-name",
+			Location:   "remote-location",
+			ExpectArgs: []string{"remote", "set-url", "remote-name", "remote-location"},
+			ExpectErr:  nil,
+		},
+	}
+	for _, c := range cases {
+		gotArgs := []string{}
+		execCommand = func(args ...string) runner {
+			gotArgs = args
+			return &mockRunner{}
+		}
+		gotErr := RemoteSetURL(c.Name, c.Location)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
+		}
+	}
+}
+
+func TestFetch(t *testing.T) {
+	cases := []struct {
+		CaseName   string
+		Remote     string
+		Branches   []string
+		ExpectArgs []string
+		ExpectErr  error
+	}{
+		{
+			CaseName:   "No remote specified",
+			Remote:     "",
+			Branches:   []string{},
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-git: Fetch() no remote specified"),
+		},
+		{
+			CaseName:   "No branches specified",
+			Remote:     "remote-location",
+			Branches:   []string{},
+			ExpectArgs: []string{"fetch", "remote-location", "--all"},
+			ExpectErr:  nil,
+		},
+		{
+			CaseName:   "Fetch specific branches",
+			Remote:     "remote-name",
+			Branches:   []string{"branch-1", "branch-2", "branch-3"},
+			ExpectArgs: []string{"fetch", "remote-name", "branch-1", "branch-2", "branch-3"},
+			ExpectErr:  nil,
+		},
+	}
+	for _, c := range cases {
+		gotArgs := []string{}
+		execCommand = func(args ...string) runner {
+			gotArgs = args
+			return &mockRunner{}
+		}
+		gotErr := Fetch(c.Remote, c.Branches...)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
+				c.CaseName,
+				c.ExpectArgs, c.ExpectErr,
+				gotArgs, gotErr,
+			)
+		}
+	}
+}
+
+func TestPull(t *testing.T) {
+	cases := []struct {
+		CaseName   string
+		Remote     string
+		Branches   []string
+		ExpectArgs []string
+		ExpectErr  error
+	}{
+		{
+			CaseName:   "No remote specified",
+			Remote:     "",
+			Branches:   []string{},
+			ExpectArgs: []string{},
+			ExpectErr:  errors.New("go-git: Pull() no remote specified"),
+		},
+		{
+			CaseName:   "No branches specified",
+			Remote:     "remote-location",
+			Branches:   []string{},
+			ExpectArgs: []string{"pull", "remote-location", "--all"},
+			ExpectErr:  nil,
+		},
+		{
+			CaseName:   "Pull specific branches",
+			Remote:     "remote-name",
+			Branches:   []string{"branch-1", "branch-2", "branch-3"},
+			ExpectArgs: []string{"pull", "remote-name", "branch-1", "branch-2", "branch-3"},
+			ExpectErr:  nil,
+		},
+	}
+	for _, c := range cases {
+		gotArgs := []string{}
+		execCommand = func(args ...string) runner {
+			gotArgs = args
+			return &mockRunner{}
+		}
+		gotErr := Pull(c.Remote, c.Branches...)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) || !equalErr(c.ExpectErr, gotErr) {
+			t.Errorf("%s\nexpected : %v, %v\ngot      : %v, %v",
 				c.CaseName,
 				c.ExpectArgs, c.ExpectErr,
 				gotArgs, gotErr,
