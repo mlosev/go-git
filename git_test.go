@@ -576,7 +576,7 @@ func TestRemoteSetURL(t *testing.T) {
 			ExpectErr:  errors.New("go-git: RemoteSetURL() no location specified"),
 		},
 		{
-			CaseName:   "Remove remote",
+			CaseName:   "Set remote url",
 			Name:       "remote-name",
 			Location:   "remote-location",
 			ExpectArgs: []string{"remote", "set-url", "remote-name", "remote-location"},
