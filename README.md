@@ -56,4 +56,3 @@ Status
 Push
 Fetch
 Pull
-Merge

@@ -224,3 +224,97 @@ func TestCheckout(t *testing.T) {
 		}
 	}
 }
+
+func TestTag(t *testing.T) {
+	cases := []struct {
+		CaseName   string
+		Name       string
+		Msg        string
+		ExpectArgs []string
+	}{
+		{
+			CaseName:   "Create a tag without a message",
+			Name:       "tag-name",
+			Msg:        "",
+			ExpectArgs: []string{"tag", "-a", "tag-name"},
+		},
+		{
+			CaseName:   "Create a tag with a message",
+			Name:       "tag-name",
+			Msg:        "tag-msg",
+			ExpectArgs: []string{"tag", "-m='tag-msg'", "tag-name"},
+		},
+	}
+	for _, c := range cases {
+		var gotArgs []string
+		execCommand = func(args ...string) runner {
+			gotArgs = args
+			return &mockRunner{}
+		}
+		Tag(c.Name, c.Msg)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
+			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		}
+	}
+}
+
+func TestDeleteTag(t *testing.T) {
+	cases := []struct {
+		CaseName   string
+		Name       string
+		ExpectArgs []string
+	}{
+		{
+			CaseName:   "Delete a tag",
+			Name:       "tag-name",
+			ExpectArgs: []string{"tag", "-d", "tag-name"},
+		},
+	}
+	for _, c := range cases {
+		var gotArgs []string
+		execCommand = func(args ...string) runner {
+			gotArgs = args
+			return &mockRunner{}
+		}
+		DeleteTag(c.Name)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
+			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		}
+	}
+}
+
+func TestMerge(t *testing.T) {
+	cases := []struct {
+		CaseName    string
+		Branch      string
+		Msg         string
+		FastForward bool
+		ExpectArgs  []string
+	}{
+		{
+			CaseName:    "Merge a branch",
+			Branch:      "branch-name",
+			Msg:         "merge-message",
+			FastForward: true,
+			ExpectArgs:  []string{"merge", "-m='merge-message'", "branch-name"},
+		},
+		{
+			CaseName:    "Merge a branch without fastforwarding",
+			Branch:      "branch-name",
+			Msg:         "merge-message",
+			FastForward: false,
+			ExpectArgs:  []string{"merge", "-m='merge-message'", "--no-ff", "branch-name"},
+		},
+	}
+	for _, c := range cases {
+		var gotArgs []string
+		execCommand = func(args ...string) runner {
+			gotArgs = args
+			return &mockRunner{}
+		}
+		Merge(c.Branch, c.Msg, c.FastForward)
+		if !reflect.DeepEqual(c.ExpectArgs, gotArgs) {
+			t.Errorf("%s\nexpected : %v\ngot      : %v", c.CaseName, c.ExpectArgs, gotArgs)
+		}
+	}
+}
