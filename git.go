@@ -74,3 +74,31 @@ func Checkout(branch string) error {
 	args := []string{"checkout", branch}
 	return execCommand(args...).Run()
 }
+
+// Tag creates a new tag with the provided name and message
+func Tag(name, msg string) error {
+	args := []string{"tag"}
+	if msg != "" {
+		args = append(args, "-m='"+msg+"'")
+	} else {
+		args = append(args, "-a")
+	}
+	args = append(args, name)
+	return execCommand(args...).Run()
+}
+
+// DeleteTag deletes the named tag.
+func DeleteTag(name string) error {
+	args := []string{"tag", "-d", name}
+	return execCommand(args...).Run()
+}
+
+// Merge Merges branch with the current branch.
+func Merge(branch, msg string, fastforward bool) error {
+	args := []string{"merge", "-m='" + msg + "'"}
+	if !fastforward {
+		args = append(args, "--no-ff")
+	}
+	args = append(args, branch)
+	return execCommand(args...).Run()
+}
