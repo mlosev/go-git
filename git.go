@@ -178,9 +178,7 @@ func Pull(remote string, branches ...string) error {
 		return errors.New("go-git: Pull() no remote specified")
 	}
 	args := []string{"pull", remote}
-	if len(branches) == 0 {
-		args = append(args, "--all")
-	} else {
+	if len(branches) > 0 {
 		args = append(args, branches...)
 	}
 	return execCommand(args...).Run()

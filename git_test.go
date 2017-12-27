@@ -666,7 +666,7 @@ func TestPull(t *testing.T) {
 			CaseName:   "No branches specified",
 			Remote:     "remote-location",
 			Branches:   []string{},
-			ExpectArgs: []string{"pull", "remote-location", "--all"},
+			ExpectArgs: []string{"pull", "remote-location"},
 			ExpectErr:  nil,
 		},
 		{
